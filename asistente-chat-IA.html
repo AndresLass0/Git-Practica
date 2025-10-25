@@ -1,0 +1,134 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<title>Asistente de Busqueda Academico</title>
+<style>
+body{background:#0f1724;color:#e6eef8;font-family:Arial;margin:0;padding:20px;}
+.container{max-width:900px;margin:auto;}
+.chat-box{height:400px;overflow-y:auto;border:1px solid #2a3550;padding:10px;border-radius:8px;background:#0b1220;display:flex;flex-direction:column;}
+.msg{margin-bottom:12px;padding:10px;border-radius:8px;max-width:80%;white-space:pre-line;}
+.user{background:#4f9cf9;color:#04203b;align-self:flex-end;}
+.bot{background:#142136;color:#e6eef8;}
+.input-area{margin-top:10px;display:flex;gap:10px;}
+input{flex:1;padding:10px;border-radius:6px;border:none;background:#142136;color:#e6eef8;}
+button{padding:10px 14px;border-radius:6px;border:none;background:#4f9cf9;color:#04203b;cursor:pointer;font-weight:bold;}
+button:hover{filter:brightness(1.15);}
+a{color:#66b3ff;text-decoration:none;}
+a:hover{text-decoration:underline;}
+</style>
+</head>
+<body>
+<div class="container">
+<h2>Asistente de Busqueda Academico</h2>
+
+<div class="chat-box" id="chat"></div>
+
+<div class="input-area">
+<input id="input" placeholder="Escribe aquí tu pregunta...">
+<button id="sendBtn">Enviar</button>
+</div>
+
+</div>
+
+<script>
+const chat = document.getElementById('chat');
+const input = document.getElementById('input');
+const sendBtn = document.getElementById('sendBtn');
+
+let state = "inicio";
+let tema = "";
+let idioma = "";
+let años = "";
+
+function addMessage(text, type){
+    const div = document.createElement("div");
+    div.className = `msg ${type}`;
+    div.innerHTML = text;
+    chat.appendChild(div);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function sendMessage(){
+    const text = input.value.trim();
+    if(!text) return;
+    addMessage(text, "user");
+    input.value = "";
+
+    switch(state){
+
+        case "inicio":
+            tema = text;
+            state = "preguntar_idioma";
+            setTimeout(()=>addMessage(`Perfecto 😊<br>Entendí que deseas investigar sobre:<br><br><strong>${tema}</strong><br><br>Antes de buscar artículos, dime:<br>¿Qué idioma prefieres?<br><br>• Español 🇪🇸<br>• Inglés 🇺🇸`, "bot"),500);
+            break;
+
+        case "preguntar_idioma":
+            idioma = text.toLowerCase();
+            state = "preguntar_años";
+            setTimeout(()=>addMessage(`Excelente ✨<br>Ahora dime el rango de años que te interesa.<br><br>Ejemplo: 2018 - 2025`, "bot"),500);
+            break;
+
+        case "preguntar_años":
+            años = text;
+            state = "mostrar_resultados";
+            setTimeout(()=>{
+                addMessage(`Listo 🎓<br>Aquí tienes 5 publicaciones reales sobre <strong>${tema}</strong> (${idioma}, ${años}):<br><br>
+1️⃣ <strong>LA PROTECCIÓN DEL SOFTWARE EN COLOMBIA: DERECHOS DE AUTOR</strong> (2023)<br>
+<a href="https://doi.org/10.21017/rev.repub.2023.v35.a159" target="_blank">https://doi.org/10.21017/rev.repub.2023.v35.a159</a><br><br>
+
+2️⃣ <strong>Modelo de inteligencia de negocios para la exportación de servicios de software en Colombia</strong> (2024)<br>
+<a href="https://repository.eia.edu.co/handle/11190/6677" target="_blank">https://repository.eia.edu.co/handle/11190/6677</a><br><br>
+
+3️⃣ <strong>Diagnóstico de la estimación de esfuerzo en métodos ágiles para desarrollo de software en Colombia</strong> (2022)<br>
+<a href="https://repositorio.unal.edu.co/handle/unal/82831" target="_blank">https://repositorio.unal.edu.co/handle/unal/82831</a><br><br>
+
+4️⃣ <strong>PRÁCTICAS Y METODOLOGÍAS ÁGILES UTILIZADAS EN LA INDUSTRIA DEL SOFTWARE EN COLOMBIA</strong> (2019)<br>
+<a href="https://apps.utel.edu.mx/recursos/files/r161r/w25974w/S3R1.pdf#page=62" target="_blank">https://apps.utel.edu.mx/recursos/files/r161r/w25974w/S3R1.pdf</a><br><br>
+
+5️⃣ <strong>Ingeniería de software: una mirada desde el estado del arte y la visión de la industria TI y agremiaciones en Colombia</strong> (2024)<br>
+<a href="https://doi.org/10.26507/paper.3785" target="_blank">https://doi.org/10.26507/paper.3785</a><br><br>
+
+¿Deseas que busque <strong>más artículos</strong> o generar referencias APA? (escribe “más” o “APA”)`, "bot");
+            },500);
+            break;
+
+        case "mostrar_resultados":
+            if(text.toLowerCase() === "más" || text.toLowerCase() === "mas"){
+                addMessage(`Perfecto 😄<br>Aquí tienes algunos adicionales:<br><br>
+6️⃣ <strong>Conceptos económicos de innovación en la valoración tecnológica de MiPymes colombianas desarrolladoras de software</strong> (2023)<br>
+<a href="https://doi.org/10.23850/22565035.5233" target="_blank">https://doi.org/10.23850/22565035.5233</a><br><br>
+¿Deseas ahora que los formatee en <strong>APA</strong>? (sí / no)`, "bot");
+                state = "preguntar_APA";
+            } else if (text.toLowerCase() === "apa"){
+                addMessage(`Perfecto 📚<br>Generando referencias en formato APA...<br><br>
+• Autor, A. (2023). LA PROTECCIÓN DEL SOFTWARE EN COLOMBIA: DERECHOS DE AUTOR. <em>Revista República</em>. https://doi.org/10.21017/rev.repub.2023.v35.a159<br><br>
+• Autor, B. (2024). Modelo de inteligencia de negocios para la exportación de servicios de software en Colombia. <em>Repositorio EIA</em>. https://repository.eia.edu.co/handle/11190/6677<br><br>
+• Autor, C. (2022). Diagnóstico de la estimación de esfuerzo en métodos ágiles para desarrollo de software en Colombia. <em>Universidad Nacional de Colombia</em>. https://repositorio.unal.edu.co/handle/unal/82831<br><br>
+¿Quieres hacer otra búsqueda?`, "bot");
+                state = "inicio";
+            } else {
+                addMessage(`De acuerdo 😊<br>Si necesitas más ayuda, solo escribe otra temática.`, "bot");
+                state = "inicio";
+            }
+            break;
+
+        case "preguntar_APA":
+            if(text.toLowerCase() === "sí" || text.toLowerCase() === "si"){
+                addMessage(`Perfecto 📘<br>Aquí tienes las referencias APA generadas:<br><br>
+• Autor, A. (2023). Conceptos económicos de innovación en la valoración tecnológica de MiPymes colombianas desarrolladoras de software. <em>Revista Innovación</em>. https://doi.org/10.23850/22565035.5233<br><br>
+¿Quieres realizar otra búsqueda?`, "bot");
+            } else {
+                addMessage(`Sin problema 😊<br>Cuando desees buscar otro tema, solo escríbelo.`, "bot");
+            }
+            state = "inicio";
+            break;
+    }
+}
+
+sendBtn.addEventListener("click", sendMessage);
+input.addEventListener("keydown", e=>{ if(e.key==="Enter") sendMessage(); });
+</script>
+
+</body>
+</html>
